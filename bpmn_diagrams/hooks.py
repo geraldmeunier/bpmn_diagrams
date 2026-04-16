@@ -24,9 +24,8 @@ app_license = "mit"
 # Includes in <head>
 # ------------------
 
-# include js, css files in header of desk.html
-# app_include_css = "/assets/bpmn_diagrams/css/bpmn_diagrams.css"
-# app_include_js = "/assets/bpmn_diagrams/js/bpmn_diagrams.js"
+# include js files in header of desk.html
+app_include_js = "bpmn_fieldtype.bundle.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/bpmn_diagrams/css/bpmn_diagrams.css"
@@ -86,7 +85,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "bpmn_diagrams.install.before_install"
-# after_install = "bpmn_diagrams.install.after_install"
+after_install = "bpmn_diagrams.install.after_install"
 
 # Uninstallation
 # ------------
@@ -199,7 +198,7 @@ app_license = "mit"
 
 # Request Events
 # ----------------
-# before_request = ["bpmn_diagrams.utils.before_request"]
+before_request = ["bpmn_diagrams.utils.before_request"]
 # after_request = ["bpmn_diagrams.utils.after_request"]
 
 # Job Events
@@ -249,4 +248,3 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

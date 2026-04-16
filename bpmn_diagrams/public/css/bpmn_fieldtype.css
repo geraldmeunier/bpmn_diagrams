@@ -1,0 +1,43 @@
+@import url("/assets/bpmn_diagrams/vendor/bpmn-js/diagram-js.css");
+@import url("/assets/bpmn_diagrams/vendor/bpmn-js/bpmn-js.css");
+@import url("/assets/bpmn_diagrams/vendor/bpmn-js/bpmn-font/css/bpmn.css");
+
+.bpmn-xml-input {
+	display: none !important;
+}
+
+.bpmn-control {
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius-md);
+	background: var(--fg-color);
+	overflow: hidden;
+}
+
+.bpmn-control__toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--border-color);
+	background: var(--subtle-fg);
+}
+
+.bpmn-control__status {
+	min-height: 20px;
+}
+
+.bpmn-control__canvas {
+	height: 520px;
+	background: #f8fafc;
+}
+
+.bpmn-control__canvas .djs-container,
+.bpmn-control__canvas .djs-container svg {
+	width: 100% !important;
+	height: 100% !important;
+}
+
+.grid-row .bpmn-control__canvas {
+	height: 360px;
+}

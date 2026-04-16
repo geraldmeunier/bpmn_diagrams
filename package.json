@@ -1,0 +1,7 @@
+{
+  "name": "bpmn_diagrams",
+  "private": true,
+  "dependencies": {
+    "bpmn-js": "^18.8.0"
+  }
+}
