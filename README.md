@@ -1,6 +1,8 @@
 ### BPMN Diagrams
 
-BPMN Diagrams
+That App adds a new fieldtype called BPMN to Frappe
+The fieldtype can be added to any doctype, allowing to draw a BPMN diagram.
+Being not a developper, that app was fully developped through vibe coding.
 
 ### Installation
 
