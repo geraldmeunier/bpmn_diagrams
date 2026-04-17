@@ -1,6 +1,14 @@
 ### BPMN Diagrams
 
-BPMN Diagrams
+Implementation inside Frappe of the [bpmn.io](https://github.com/bpmn-io/bpmn-js) javascrpit library.
+
+That App adds a new fieldtype named BPMN to Frappe.
+
+The fieldtype can be added to any doctype, allowing to draw a BPMN diagram.
+
+Being not a developper, that app was fully developped through vibe coding.
+
+
 
 ### Installation
 
