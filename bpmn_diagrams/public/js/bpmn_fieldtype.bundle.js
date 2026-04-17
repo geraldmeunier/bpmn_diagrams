@@ -73,6 +73,59 @@ function get_field_value(field) {
 	return "";
 }
 
+function inject_bpmn_fullscreen_css_once() {
+	if (document.getElementById("bpmn-fullscreen-style")) return;
+
+	const style = document.createElement("style");
+	style.id = "bpmn-fullscreen-style";
+	style.textContent = `
+		body.bpmn-fullscreen-body { overflow: hidden; }
+
+		.bpmn-fullscreen-active {
+			position: fixed !important;
+			inset: 12px !important;
+			z-index: 1045 !important;
+			background: var(--card-bg, #fff);
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+			padding: 12px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.bpmn-fullscreen-active .clearfix,
+		.bpmn-fullscreen-active .help-box,
+		.bpmn-fullscreen-active .form-text { display: none !important; }
+
+		.bpmn-fullscreen-active .form-group {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 0;
+		}
+
+		.bpmn-fullscreen-active .control-input-wrapper,
+		.bpmn-fullscreen-active .control-input {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.bpmn-fullscreen-active .bpmn-control {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+		}
+
+		.bpmn-fullscreen-active .bpmn-control__canvas {
+			flex: 1;
+			height: auto !important;
+		}
+	`;
+	document.head.appendChild(style);
+}
+
 function ensure_bpmn_stylesheet() {
 	if (document.getElementById(BPMN_STYLESHEET_ID)) {
 		return;
@@ -123,6 +176,7 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 		}
 
 		ensure_bpmn_stylesheet();
+		inject_bpmn_fullscreen_css_once();
 		super.make_input();
 
 		this.$input.addClass("bpmn-xml-input");
@@ -131,9 +185,14 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 			<div class="bpmn-control">
 				<div class="bpmn-control__toolbar">
 					<div class="bpmn-control__status text-muted small"></div>
-					<button class="btn btn-xs btn-default bpmn-control__fit" type="button">
-						${__("Fit")}
-					</button>
+					<div class="bpmn-control__actions">
+						<button class="btn btn-xs btn-default bpmn-control__fit" type="button">
+							${__("Fit")}
+						</button>
+						<button class="btn btn-xs btn-default bpmn-control__fullscreen" type="button" title="${__("Plein écran")}" aria-label="${__("Plein écran")}">
+							<span class="bpmn-fullscreen-icon">⛶</span>
+						</button>
+					</div>
 				</div>
 				<div class="bpmn-control__canvas"></div>
 			</div>
@@ -143,6 +202,15 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 		this.$canvas = this.$modeler.find(".bpmn-control__canvas");
 
 		this.$modeler.find(".bpmn-control__fit").on("click", () => this.fit_viewport());
+
+		this.$fullscreen_btn = this.$modeler.find(".bpmn-control__fullscreen");
+		this.$fullscreen_btn.on("click", () => this.toggle_fullscreen());
+
+		$(document).on("keydown.bpmn_fullscreen_" + this.df.fieldname, (e) => {
+			if (e.key === "Escape" && this.$wrapper.hasClass("bpmn-fullscreen-active")) {
+				this.exit_fullscreen();
+			}
+		});
 
 		this.modeler = new Modeler({
 			container: this.$canvas.get(0),
@@ -272,6 +340,42 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 
 		const canvas = this.modeler.get("canvas");
 		canvas.zoom("fit-viewport", "auto");
+	}
+
+	toggle_fullscreen() {
+		if (this.$wrapper.hasClass("bpmn-fullscreen-active")) {
+			this.exit_fullscreen();
+		} else {
+			this.enter_fullscreen();
+		}
+	}
+
+	enter_fullscreen() {
+		this.$wrapper.addClass("bpmn-fullscreen-active");
+		$("body").addClass("bpmn-fullscreen-body");
+		this.$fullscreen_btn.addClass("active").attr("title", __("Quitter le plein écran")).attr("aria-label", __("Quitter le plein écran"));
+		this.$fullscreen_btn.find(".bpmn-fullscreen-icon").text("🗗");
+
+		window.requestAnimationFrame(() => {
+			if (this.modeler) {
+				this.modeler.get("canvas").resized();
+				this.fit_viewport();
+			}
+		});
+	}
+
+	exit_fullscreen() {
+		this.$wrapper.removeClass("bpmn-fullscreen-active");
+		$("body").removeClass("bpmn-fullscreen-body");
+		this.$fullscreen_btn.removeClass("active").attr("title", __("Plein écran")).attr("aria-label", __("Plein écran"));
+		this.$fullscreen_btn.find(".bpmn-fullscreen-icon").text("⛶");
+
+		window.requestAnimationFrame(() => {
+			if (this.modeler) {
+				this.modeler.get("canvas").resized();
+				this.fit_viewport();
+			}
+		});
 	}
 };
 

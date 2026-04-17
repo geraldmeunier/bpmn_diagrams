@@ -41,3 +41,59 @@
 .grid-row .bpmn-control__canvas {
 	height: 360px;
 }
+
+/* Groupe de boutons à droite de la toolbar */
+.bpmn-control__actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+/* Bouton plein écran */
+.bpmn-control__fullscreen {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 6px;
+	font-size: 15px;
+	line-height: 1;
+}
+
+.bpmn-control__fullscreen .bpmn-fullscreen-icon {
+	pointer-events: none;
+}
+
+/* Mode plein écran */
+body.bpmn-fullscreen-body {
+	overflow: hidden;
+}
+
+.bpmn-fullscreen-active {
+	position: fixed !important;
+	inset: 12px !important;
+	z-index: 1045 !important;
+	background: var(--card-bg, #fff);
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+}
+
+.bpmn-fullscreen-active .control-label,
+.bpmn-fullscreen-active .help-box,
+.bpmn-fullscreen-active .form-text {
+	display: none !important;
+}
+
+.bpmn-fullscreen-active .bpmn-control {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.bpmn-fullscreen-active .bpmn-control__canvas {
+	flex: 1;
+	height: auto !important;
+}
