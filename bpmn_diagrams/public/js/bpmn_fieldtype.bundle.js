@@ -189,7 +189,13 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 						<button class="btn btn-xs btn-default bpmn-control__fit" type="button">
 							${__("Fit")}
 						</button>
-						<button class="btn btn-xs btn-default bpmn-control__fullscreen" type="button" title="${__("Plein écran")}" aria-label="${__("Plein écran")}">
+						<button class="btn btn-xs btn-default bpmn-control__copy" type="button" title="${__("Copy XML")}" aria-label="${__("Copy XML")}">
+							${__("Copy XML")}
+						</button>
+						<button class="btn btn-xs btn-default bpmn-control__copy-svg" type="button" title="${__("Copy SVG")}" aria-label="${__("Copy SVG")}">
+							${__("Copy SVG")}
+						</button>
+						<button class="btn btn-xs btn-default bpmn-control__fullscreen" type="button" title="${__("Fullscreen")}" aria-label="${__("Fullscreen")}">
 							<span class="bpmn-fullscreen-icon">⛶</span>
 						</button>
 					</div>
@@ -202,6 +208,9 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 		this.$canvas = this.$modeler.find(".bpmn-control__canvas");
 
 		this.$modeler.find(".bpmn-control__fit").on("click", () => this.fit_viewport());
+
+		this.$modeler.find(".bpmn-control__copy").on("click", () => this.copy_xml());
+		this.$modeler.find(".bpmn-control__copy-svg").on("click", () => this.copy_svg());
 
 		this.$fullscreen_btn = this.$modeler.find(".bpmn-control__fullscreen");
 		this.$fullscreen_btn.on("click", () => this.toggle_fullscreen());
@@ -342,6 +351,53 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 		canvas.zoom("fit-viewport", "auto");
 	}
 
+	async copy_svg() {
+		try {
+			const { svg } = await this.modeler.saveSVG();
+
+			const blob = new Blob([svg], { type: "image/svg+xml" });
+			const url = URL.createObjectURL(blob);
+
+			const img = new Image();
+			await new Promise((resolve, reject) => {
+				img.onload = resolve;
+				img.onerror = reject;
+				img.src = url;
+			});
+
+			const canvas = document.createElement("canvas");
+			canvas.width = img.naturalWidth || img.width;
+			canvas.height = img.naturalHeight || img.height;
+			canvas.getContext("2d").drawImage(img, 0, 0);
+			URL.revokeObjectURL(url);
+
+			const png_blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+			await navigator.clipboard.write([new ClipboardItem({ "image/png": png_blob })]);
+
+			const $btn = this.$modeler.find(".bpmn-control__copy-svg");
+			const original = $btn.text();
+			$btn.text(__("Copied!"));
+			setTimeout(() => $btn.text(original), 1500);
+		} catch (error) {
+			frappe.msgprint(__("Unable to copy SVG as image"));
+			console.error("Failed to copy BPMN SVG", error);
+		}
+	}
+
+	async copy_xml() {
+		try {
+			const { xml } = await this.modeler.saveXML({ format: true });
+			await navigator.clipboard.writeText(xml);
+			const $btn = this.$modeler.find(".bpmn-control__copy");
+			const original = $btn.text();
+			$btn.text(__("Copied!"));
+			setTimeout(() => $btn.text(original), 1500);
+		} catch (error) {
+			frappe.msgprint(__("Unable to copy XML"));
+			console.error("Failed to copy BPMN XML", error);
+		}
+	}
+
 	toggle_fullscreen() {
 		if (this.$wrapper.hasClass("bpmn-fullscreen-active")) {
 			this.exit_fullscreen();
@@ -353,7 +409,7 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 	enter_fullscreen() {
 		this.$wrapper.addClass("bpmn-fullscreen-active");
 		$("body").addClass("bpmn-fullscreen-body");
-		this.$fullscreen_btn.addClass("active").attr("title", __("Quitter le plein écran")).attr("aria-label", __("Quitter le plein écran"));
+		this.$fullscreen_btn.addClass("active").attr("title", __("Exit fullscreen")).attr("aria-label", __("Exit fullscreen"));
 		this.$fullscreen_btn.find(".bpmn-fullscreen-icon").text("🗗");
 
 		window.requestAnimationFrame(() => {
@@ -367,7 +423,7 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 	exit_fullscreen() {
 		this.$wrapper.removeClass("bpmn-fullscreen-active");
 		$("body").removeClass("bpmn-fullscreen-body");
-		this.$fullscreen_btn.removeClass("active").attr("title", __("Plein écran")).attr("aria-label", __("Plein écran"));
+		this.$fullscreen_btn.removeClass("active").attr("title", __("Fullscreen")).attr("aria-label", __("Fullscreen"));
 		this.$fullscreen_btn.find(".bpmn-fullscreen-icon").text("⛶");
 
 		window.requestAnimationFrame(() => {
