@@ -1,6 +1,6 @@
 import frappe.model as _model
 
-__version__ = "0.0.1"
+__version__ = "0.0.3"
 
 _BPMN_DB_TYPES = {
 	"mariadb": ("longtext", ""),
