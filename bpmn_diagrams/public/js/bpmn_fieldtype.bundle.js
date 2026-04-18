@@ -192,6 +192,9 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 						<button class="btn btn-xs btn-default bpmn-control__copy" type="button" title="${__("Copy XML")}" aria-label="${__("Copy XML")}">
 							${__("Copy XML")}
 						</button>
+						<button class="btn btn-xs btn-default bpmn-control__paste-xml" type="button" title="${__("Paste XML")}" aria-label="${__("Paste XML")}">
+							${__("Paste XML")}
+						</button>
 						<button class="btn btn-xs btn-default bpmn-control__copy-svg" type="button" title="${__("Copy SVG")}" aria-label="${__("Copy SVG")}">
 							${__("Copy SVG")}
 						</button>
@@ -210,6 +213,7 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 		this.$modeler.find(".bpmn-control__fit").on("click", () => this.fit_viewport());
 
 		this.$modeler.find(".bpmn-control__copy").on("click", () => this.copy_xml());
+		this.$modeler.find(".bpmn-control__paste-xml").on("click", () => this.paste_xml());
 		this.$modeler.find(".bpmn-control__copy-svg").on("click", () => this.copy_svg());
 
 		this.$fullscreen_btn = this.$modeler.find(".bpmn-control__fullscreen");
@@ -381,6 +385,25 @@ frappe.ui.form.ControlBPMN = class ControlBPMN extends frappe.ui.form.ControlDat
 		} catch (error) {
 			frappe.msgprint(__("Unable to copy SVG as image"));
 			console.error("Failed to copy BPMN SVG", error);
+		}
+	}
+
+	async paste_xml() {
+		try {
+			const text = await navigator.clipboard.readText();
+			const xml = coerce_bpmn_xml(text);
+			if (!xml) {
+				frappe.msgprint(__("Clipboard does not contain valid BPMN XML"));
+				return;
+			}
+			await this.set_input(xml);
+			await this.serialize_diagram(true);
+			if (this.frm && !this.frm.is_dirty()) {
+				this.frm.dirty();
+			}
+		} catch (error) {
+			frappe.msgprint(__("Unable to read clipboard"));
+			console.error("Failed to paste BPMN XML", error);
 		}
 	}
 
